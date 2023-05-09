@@ -1,12 +1,10 @@
 // import / intial
 const express = require('express');
-
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const userRoutes = require('./routes/user.route');
 const recipeRoutes = require('./routes/recipe.route');
-
 const port = 3000;
 require('dotenv').config();
 

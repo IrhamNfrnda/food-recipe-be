@@ -6,11 +6,10 @@ const getRecipes = async (req, res) => {
     const { page, limit } = req.query;
 
     if (id) {
-
-      if (isNaN(id)) {
+      if (Number.isNaN(id)) {
         return res.status(400).json({
           status: false,
-          message: "ID must be integer",
+          message: 'ID must be integer',
         });
       }
       const dataSelectedRecipe = await recipes.getRecipeByID({ id });
@@ -98,6 +97,12 @@ const editRecipes = async (req, res) => {
       videoLink,
     } = req.body;
 
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        status: false,
+        message: 'ID must be integer',
+      });
+    }
     const recipeData = await recipes.getRecipeByID({ id });
 
     if (title !== recipeData[0].title) {
@@ -143,6 +148,12 @@ const deleteRecipes = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        status: false,
+        message: 'ID must be integer',
+      });
+    }
     const deleteRecipe = await recipes.deleteRecipe({ id });
 
     return res.status(200).json({

@@ -1,5 +1,5 @@
-const users = require('../models/user.model');
 const bcrypt = require('bcrypt');
+const users = require('../models/user.model');
 
 const getUsers = async (req, res) => {
   try {
@@ -7,11 +7,10 @@ const getUsers = async (req, res) => {
     const { page, limit } = req.query;
 
     if (id) {
-
-      if (isNaN(id)) {
+      if (Number.isNaN(id)) {
         return res.status(400).json({
           status: false,
-          message: "ID must be integer",
+          message: 'ID must be integer',
         });
       }
 
@@ -107,10 +106,10 @@ const editUsers = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (isNaN(id)) {
+    if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: "ID must be integer",
+        message: 'ID must be integer',
       });
     }
 
@@ -160,10 +159,10 @@ const deleteUsers = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (isNaN(id)) {
+    if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: "ID must be integer",
+        message: 'ID must be integer',
       });
     }
 
