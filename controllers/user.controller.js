@@ -16,9 +16,16 @@ const getUsers = async (req, res) => {
 
       const dataSelectedUser = await users.getUserByID({ id });
 
+      if (!dataSelectedUser.length) {
+        return res.status(200).json({
+          status: false,
+          message: 'ID Not Found!',
+        });
+      }
+
       return res.status(200).json({
         status: true,
-        message: 'Get data success',
+        message: 'Get Data Success!',
         data: dataSelectedUser,
       });
     }
@@ -113,9 +120,16 @@ const editUsers = async (req, res) => {
       });
     }
 
-    const userData = await users.getUserByID({ id });
+    const dataSelectedUser = await users.getUserByID({ id });
 
-    if (email !== userData[0].email) {
+    if (!dataSelectedUser.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'ID Not Found!',
+      });
+    }
+
+    if (email !== dataSelectedUser[0].email) {
       const checkEmail = await users.getUserByEmail({ email });
       if (checkEmail.length > 0) {
         return res.status(401).json({
@@ -125,7 +139,7 @@ const editUsers = async (req, res) => {
       }
     }
 
-    if (userData) {
+    if (dataSelectedUser) {
       const updateUser = await users.updateUser({
         id,
         email,
@@ -133,7 +147,7 @@ const editUsers = async (req, res) => {
         phoneNumber,
         password: hashedPassword,
         profilePicture,
-        userData: userData[0],
+        userData: dataSelectedUser[0],
       });
 
       return res.status(200).json({
@@ -142,11 +156,7 @@ const editUsers = async (req, res) => {
         data: updateUser,
       });
     }
-
-    return res.status(401).json({
-      status: false,
-      message: 'ID not found!',
-    });
+    return null
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -168,6 +178,13 @@ const deleteUsers = async (req, res) => {
 
     const deleteUser = await users.deleteUser({ id });
 
+    if (!deleteUser.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'ID Not Found!',
+      });
+    }
+
     return res.status(200).json({
       status: true,
       message: 'Success Delete Data!',
@@ -176,7 +193,7 @@ const deleteUsers = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: 'Error in Server',
+      message: error.message,
     });
   }
 };

@@ -14,6 +14,13 @@ const getRecipes = async (req, res) => {
       }
       const dataSelectedRecipe = await recipes.getRecipeByID({ id });
 
+      if (!dataSelectedRecipe.length) {
+        return res.status(200).json({
+          status: false,
+          message: 'ID Not Found!',
+        });
+      }
+
       return res.status(200).json({
         status: true,
         message: 'Get data success',
@@ -103,9 +110,16 @@ const editRecipes = async (req, res) => {
         message: 'ID must be integer',
       });
     }
-    const recipeData = await recipes.getRecipeByID({ id });
+    const dataSelectedRecipe = await recipes.getRecipeByID({ id });
 
-    if (title !== recipeData[0].title) {
+    if (!dataSelectedRecipe.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'ID Not Found!',
+      });
+    }
+
+    if (title !== dataSelectedRecipe[0].title) {
       const checkTitle = await recipes.getRecipeByTitle({ title });
       if (checkTitle.length > 0) {
         return res.status(401).json({
@@ -115,14 +129,14 @@ const editRecipes = async (req, res) => {
       }
     }
 
-    if (recipeData) {
+    if (dataSelectedRecipe) {
       const updateRecipe = await recipes.updateRecipe({
         id,
         recipePicture,
         title,
         ingredients,
         videoLink,
-        recipeData: recipeData[0],
+        recipeData: dataSelectedRecipe[0],
       });
 
       return res.status(200).json({
@@ -131,11 +145,7 @@ const editRecipes = async (req, res) => {
         data: updateRecipe,
       });
     }
-
-    return res.status(401).json({
-      status: false,
-      message: 'ID not found!',
-    });
+    return null;
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -155,6 +165,13 @@ const deleteRecipes = async (req, res) => {
       });
     }
     const deleteRecipe = await recipes.deleteRecipe({ id });
+
+    if (!deleteRecipe.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'ID Not Found!',
+      });
+    }
 
     return res.status(200).json({
       status: true,
