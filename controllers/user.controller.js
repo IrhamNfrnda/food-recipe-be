@@ -156,7 +156,7 @@ const editUsers = async (req, res) => {
         data: updateUser,
       });
     }
-    return null
+    return null;
   } catch (error) {
     return res.status(500).json({
       status: false,
