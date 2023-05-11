@@ -11,12 +11,17 @@
   "dependencies": {
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
     "nodemon": "^2.0.22",
-    "postgres": "^3.3.4"
+    "pg-promise": "^11.4.3",
+    "postgres": "^3.3.4",
+    "xss": "^1.0.14",
+    "xss-clean": "^0.1.1"
   },
   "devDependencies": {
     "eslint": "^8.40.0",

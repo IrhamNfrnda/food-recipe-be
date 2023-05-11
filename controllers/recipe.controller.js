@@ -3,7 +3,7 @@ const recipes = require('../models/recipe.model')
 const getRecipes = async (req, res) => {
   try {
     const { id } = req.params
-    const { page, limit } = req.query
+    const { page, sort, keyword } = req.query
 
     if (id) {
       if (Number.isNaN(id)) {
@@ -27,26 +27,29 @@ const getRecipes = async (req, res) => {
         data: dataSelectedRecipe
       })
     }
-    let dataAllRecipes
 
-    if (page && limit) {
-      dataAllRecipes = await recipes.getAllRecipesPagination({ page, limit })
-    } else {
-      dataAllRecipes = await recipes.getAllRecipes()
-    }
+    dataAllRecipes = await recipes.getAllRecipes({
+      page,
+      sort,
+      keyword
+    })
 
     if (dataAllRecipes.length > 0) {
       return res.status(200).json({
         status: true,
         message: 'Get data success',
         total: dataAllRecipes.length,
-        page,
-        limit,
+        page: !Number.isNaN(page)? {
+          current: page,
+          total: dataAllRecipes?.[0].full_count
+          ? Math.ceil(parseInt(dataAllRecipes?.[0]?.full_count) / 10)
+          : 0
+        } : null,
         data: dataAllRecipes
       })
     }
     return res.status(200).json({
-      status: true,
+      status: false,
       message: 'Recipes Data is Empty!'
     })
   } catch (error) {
@@ -81,6 +84,7 @@ const postRecipes = async (req, res) => {
       ingredients,
       videoLink
     })
+
     return res.status(200).json({
       status: true,
       message: 'Success Insert Data!',

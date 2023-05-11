@@ -1,7 +1,50 @@
 const db = require('../database')
 
-const getAllRecipes = async () => {
-  const query = await db`SELECT * FROM recipes ORDER BY id`
+const getAllRecipes = async (params) => {
+  const { page, sort, keyword } = params
+  // let query = db`SELECT *, count(*) OVER() AS full_count FROM recipes`
+  // if (keyword) {
+  //   query += ` WHERE LOWER(recipes.name) LIKE LOWER(${keyword})`
+  // }
+
+  // if (page && !Number.isNaN(id)) {
+  //   query += ` LIMIT 10 OFFSET ${10 * (page - 1)}`
+  // }
+
+  // if (sort && sort.toLowerCase() === 'asc') {
+  //   query += ` ORDER BY id ASC`
+  // } else {
+  //   query += ` ORDER BY id DESC`
+  // }
+
+  let query
+    // let sort = db`DESC`
+  const isPaginate =
+    page &&
+    !Number.isNaN(page) &&
+    parseInt(page) >= 1
+
+  // check if sort type exist and paginate exist
+  if (sort?.toLowerCase() === 'asc') {
+    if (isPaginate) {
+      sortQuery = db`ASC LIMIT 10 OFFSET ${10 * (parseInt(page) - 1)}`
+    } else {
+      sortQuery = db`ASC`
+    }
+  }
+
+  // check if sort type not exist and paginate exist
+  if (isPaginate && !sort) {
+    sortQuery = db`DESC LIMIT 10 OFFSET ${10 * (parseInt(page) - 1)}`
+  }
+
+  if (keyword) {
+    query =
+      await db`SELECT *, count(*) OVER() AS full_count FROM recipes WHERE LOWER(recipes.title) LIKE LOWER(${keyword}) ORDER BY id ${sortQuery}`
+  } else {
+    query =
+      await db`SELECT *, count(*) OVER() AS full_count FROM recipes ORDER BY id ${sortQuery}`
+  }
 
   return query
 }

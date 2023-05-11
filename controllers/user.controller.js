@@ -54,7 +54,7 @@ const getUsers = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: 'Error in Server'
+      message: error.message
     })
   }
 }
