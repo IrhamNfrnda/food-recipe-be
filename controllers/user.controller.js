@@ -1,40 +1,40 @@
-const bcrypt = require('bcrypt');
-const users = require('../models/user.model');
+const bcrypt = require('bcrypt')
+const users = require('../models/user.model')
 
 const getUsers = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { page, limit } = req.query;
+    const { id } = req.params
+    const { page, limit } = req.query
 
     if (id) {
       if (Number.isNaN(id)) {
         return res.status(400).json({
           status: false,
-          message: 'ID must be integer',
-        });
+          message: 'ID must be integer'
+        })
       }
 
-      const dataSelectedUser = await users.getUserByID({ id });
+      const dataSelectedUser = await users.getUserByID({ id })
 
       if (!dataSelectedUser.length) {
         return res.status(200).json({
           status: false,
-          message: 'ID Not Found!',
-        });
+          message: 'ID Not Found!'
+        })
       }
 
       return res.status(200).json({
         status: true,
         message: 'Get Data Success!',
-        data: dataSelectedUser,
-      });
+        data: dataSelectedUser
+      })
     }
-    let dataAllUsers;
+    let dataAllUsers
 
     if (page && limit) {
-      dataAllUsers = await users.getAllUsersPagination({ page, limit });
+      dataAllUsers = await users.getAllUsersPagination({ page, limit })
     } else {
-      dataAllUsers = await users.getAllUsers();
+      dataAllUsers = await users.getAllUsers()
     }
 
     if (dataAllUsers.length > 0) {
@@ -44,20 +44,20 @@ const getUsers = async (req, res) => {
         total: dataAllUsers.length,
         page,
         limit,
-        data: dataAllUsers,
-      });
+        data: dataAllUsers
+      })
     }
     return res.status(200).json({
       status: true,
-      message: 'User Data is Empty!',
-    });
+      message: 'User Data is Empty!'
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: 'Error in Server',
-    });
+      message: 'Error in Server'
+    })
   }
-};
+}
 
 const postUsers = async (req, res) => {
   try {
@@ -66,18 +66,18 @@ const postUsers = async (req, res) => {
       fullname,
       phoneNumber,
       password,
-      profilePicture,
-    } = req.body;
+      profilePicture
+    } = req.body
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    const checkEmail = await users.getUserByEmail({ email });
+    const checkEmail = await users.getUserByEmail({ email })
 
     if (checkEmail.length > 0) {
       return res.status(401).json({
         status: false,
-        message: 'Email already registered!',
-      });
+        message: 'Email already registered!'
+      })
     }
 
     const createUser = await users.createUser({
@@ -85,57 +85,57 @@ const postUsers = async (req, res) => {
       fullname,
       phoneNumber,
       password: hashedPassword,
-      profilePicture,
-    });
+      profilePicture
+    })
     return res.status(200).json({
       status: true,
       message: 'Success Insert Data!',
-      data: createUser,
-    });
+      data: createUser
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: 'Error in Server',
-    });
+      message: 'Error in Server'
+    })
   }
-};
+}
 
 const editUsers = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
     const {
       email,
       fullname,
       phoneNumber,
       password,
-      profilePicture,
-    } = req.body;
+      profilePicture
+    } = req.body
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: 'ID must be integer',
-      });
+        message: 'ID must be integer'
+      })
     }
 
-    const dataSelectedUser = await users.getUserByID({ id });
+    const dataSelectedUser = await users.getUserByID({ id })
 
     if (!dataSelectedUser.length) {
       return res.status(200).json({
         status: false,
-        message: 'ID Not Found!',
-      });
+        message: 'ID Not Found!'
+      })
     }
 
     if (email !== dataSelectedUser[0].email) {
-      const checkEmail = await users.getUserByEmail({ email });
+      const checkEmail = await users.getUserByEmail({ email })
       if (checkEmail.length > 0) {
         return res.status(401).json({
           status: false,
-          message: 'Email already registered!',
-        });
+          message: 'Email already registered!'
+        })
       }
     }
 
@@ -147,60 +147,60 @@ const editUsers = async (req, res) => {
         phoneNumber,
         password: hashedPassword,
         profilePicture,
-        userData: dataSelectedUser[0],
-      });
+        userData: dataSelectedUser[0]
+      })
 
       return res.status(200).json({
         status: true,
         message: 'Success Update Data!',
-        data: updateUser,
-      });
+        data: updateUser
+      })
     }
-    return null;
+    return null
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 const deleteUsers = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
     if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: 'ID must be integer',
-      });
+        message: 'ID must be integer'
+      })
     }
 
-    const deleteUser = await users.deleteUser({ id });
+    const deleteUser = await users.deleteUser({ id })
 
     if (!deleteUser.length) {
       return res.status(200).json({
         status: false,
-        message: 'ID Not Found!',
-      });
+        message: 'ID Not Found!'
+      })
     }
 
     return res.status(200).json({
       status: true,
       message: 'Success Delete Data!',
-      data: deleteUser,
-    });
+      data: deleteUser
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 module.exports = {
   getUsers,
   postUsers,
   editUsers,
-  deleteUsers,
-};
+  deleteUsers
+}

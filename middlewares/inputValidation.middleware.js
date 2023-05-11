@@ -1,4 +1,4 @@
-const { check, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator')
 
 const validateInputUser = [
   check('email')
@@ -20,16 +20,16 @@ const validateInputUser = [
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long'),
   (req, res, next) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({
         status: false,
-        message: errors.array()[0].msg,
-      });
+        message: errors.array()[0].msg
+      })
     }
-    return next();
-  },
-];
+    return next()
+  }
+]
 
 const validateInputRecipe = [
   check('title')
@@ -41,18 +41,18 @@ const validateInputRecipe = [
     .isLength({ min: 6 })
     .withMessage('Ingredients must be at least 6 characters long'),
   (req, res, next) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({
         status: false,
-        message: errors.array()[0].msg,
-      });
+        message: errors.array()[0].msg
+      })
     }
-    return next();
-  },
-];
+    return next()
+  }
+]
 
 module.exports = {
   validateInputUser,
-  validateInputRecipe,
-};
+  validateInputRecipe
+}

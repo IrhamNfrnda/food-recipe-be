@@ -1,38 +1,38 @@
-const recipes = require('../models/recipe.model');
+const recipes = require('../models/recipe.model')
 
 const getRecipes = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { page, limit } = req.query;
+    const { id } = req.params
+    const { page, limit } = req.query
 
     if (id) {
       if (Number.isNaN(id)) {
         return res.status(400).json({
           status: false,
-          message: 'ID must be integer',
-        });
+          message: 'ID must be integer'
+        })
       }
-      const dataSelectedRecipe = await recipes.getRecipeByID({ id });
+      const dataSelectedRecipe = await recipes.getRecipeByID({ id })
 
       if (!dataSelectedRecipe.length) {
         return res.status(200).json({
           status: false,
-          message: 'ID Not Found!',
-        });
+          message: 'ID Not Found!'
+        })
       }
 
       return res.status(200).json({
         status: true,
         message: 'Get data success',
-        data: dataSelectedRecipe,
-      });
+        data: dataSelectedRecipe
+      })
     }
-    let dataAllRecipes;
+    let dataAllRecipes
 
     if (page && limit) {
-      dataAllRecipes = await recipes.getAllRecipesPagination({ page, limit });
+      dataAllRecipes = await recipes.getAllRecipesPagination({ page, limit })
     } else {
-      dataAllRecipes = await recipes.getAllRecipes();
+      dataAllRecipes = await recipes.getAllRecipes()
     }
 
     if (dataAllRecipes.length > 0) {
@@ -42,20 +42,20 @@ const getRecipes = async (req, res) => {
         total: dataAllRecipes.length,
         page,
         limit,
-        data: dataAllRecipes,
-      });
+        data: dataAllRecipes
+      })
     }
     return res.status(200).json({
       status: true,
-      message: 'Recipes Data is Empty!',
-    });
+      message: 'Recipes Data is Empty!'
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 const postRecipes = async (req, res) => {
   try {
@@ -63,69 +63,69 @@ const postRecipes = async (req, res) => {
       recipePicture,
       title,
       ingredients,
-      videoLink,
-    } = req.body;
+      videoLink
+    } = req.body
 
-    const checkTitle = await recipes.getRecipeByTitle({ title });
+    const checkTitle = await recipes.getRecipeByTitle({ title })
 
     if (checkTitle.length > 0) {
       return res.status(401).json({
         status: false,
-        message: 'Title already Used!',
-      });
+        message: 'Title already Used!'
+      })
     }
 
     const createRecipe = await recipes.createRecipe({
       recipePicture,
       title,
       ingredients,
-      videoLink,
-    });
+      videoLink
+    })
     return res.status(200).json({
       status: true,
       message: 'Success Insert Data!',
-      data: createRecipe,
-    });
+      data: createRecipe
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 const editRecipes = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
     const {
       recipePicture,
       title,
       ingredients,
-      videoLink,
-    } = req.body;
+      videoLink
+    } = req.body
 
     if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: 'ID must be integer',
-      });
+        message: 'ID must be integer'
+      })
     }
-    const dataSelectedRecipe = await recipes.getRecipeByID({ id });
+    const dataSelectedRecipe = await recipes.getRecipeByID({ id })
 
     if (!dataSelectedRecipe.length) {
       return res.status(200).json({
         status: false,
-        message: 'ID Not Found!',
-      });
+        message: 'ID Not Found!'
+      })
     }
 
     if (title !== dataSelectedRecipe[0].title) {
-      const checkTitle = await recipes.getRecipeByTitle({ title });
+      const checkTitle = await recipes.getRecipeByTitle({ title })
       if (checkTitle.length > 0) {
         return res.status(401).json({
           status: false,
-          message: 'Title already Used!',
-        });
+          message: 'Title already Used!'
+        })
       }
     }
 
@@ -136,59 +136,59 @@ const editRecipes = async (req, res) => {
         title,
         ingredients,
         videoLink,
-        recipeData: dataSelectedRecipe[0],
-      });
+        recipeData: dataSelectedRecipe[0]
+      })
 
       return res.status(200).json({
         status: true,
         message: 'Success Update Data!',
-        data: updateRecipe,
-      });
+        data: updateRecipe
+      })
     }
-    return null;
+    return null
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 const deleteRecipes = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
     if (Number.isNaN(id)) {
       return res.status(400).json({
         status: false,
-        message: 'ID must be integer',
-      });
+        message: 'ID must be integer'
+      })
     }
-    const deleteRecipe = await recipes.deleteRecipe({ id });
+    const deleteRecipe = await recipes.deleteRecipe({ id })
 
     if (!deleteRecipe.length) {
       return res.status(200).json({
         status: false,
-        message: 'ID Not Found!',
-      });
+        message: 'ID Not Found!'
+      })
     }
 
     return res.status(200).json({
       status: true,
       message: 'Success Delete Data!',
-      data: deleteRecipe,
-    });
+      data: deleteRecipe
+    })
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-};
+}
 
 module.exports = {
   getRecipes,
   postRecipes,
   editRecipes,
-  deleteRecipes,
-};
+  deleteRecipes
+}
