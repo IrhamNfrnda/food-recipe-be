@@ -28,7 +28,8 @@ const createUser = async (params) => {
     fullname,
     phoneNumber,
     password,
-    profilePicture
+    profilePicture,
+    role
   } = params
 
   const payload = {
@@ -36,7 +37,8 @@ const createUser = async (params) => {
     fullname,
     phone_number: phoneNumber,
     password,
-    profile_picture: profilePicture
+    profile_picture: profilePicture,
+    role
   }
 
   const query = await db`INSERT INTO users ${db(
@@ -45,7 +47,8 @@ const createUser = async (params) => {
     'fullname',
     'phone_number',
     'password',
-    'profile_picture'
+    'profile_picture',
+    'role'
   )} returning *`
 
   return query
@@ -59,6 +62,7 @@ const updateUser = async (params) => {
     phoneNumber,
     password,
     profilePicture,
+    role,
     userData
   } = params
 
@@ -67,7 +71,8 @@ const updateUser = async (params) => {
     fullname: fullname ?? userData.fullname,
     phone_number: phoneNumber ?? userData.phone_number,
     password: password ?? userData.password,
-    profile_picture: profilePicture ?? userData.profile_picture
+    profile_picture: profilePicture ?? userData.profile_picture,
+    role: role ?? userData.role
   }
 
   const query = await db`UPDATE users set ${db(
@@ -76,7 +81,8 @@ const updateUser = async (params) => {
     'fullname',
     'phone_number',
     'password',
-    'profile_picture'
+    'profile_picture',
+    'role'
   )} WHERE id = ${id} returning *`
 
   return query

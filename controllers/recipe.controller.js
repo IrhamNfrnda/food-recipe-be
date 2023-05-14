@@ -28,7 +28,7 @@ const getRecipes = async (req, res) => {
       })
     }
 
-    dataAllRecipes = await recipes.getAllRecipes({
+    const dataAllRecipes = await recipes.getAllRecipes({
       page,
       sort,
       keyword
@@ -39,12 +39,14 @@ const getRecipes = async (req, res) => {
         status: true,
         message: 'Get data success',
         total: dataAllRecipes.length,
-        page: !Number.isNaN(page)? {
-          current: page,
-          total: dataAllRecipes?.[0].full_count
-          ? Math.ceil(parseInt(dataAllRecipes?.[0]?.full_count) / 10)
-          : 0
-        } : null,
+        page: !Number.isNaN(page)
+          ? {
+              current: page,
+              total: dataAllRecipes?.[0].full_count
+                ? Math.ceil(parseInt(dataAllRecipes?.[0]?.full_count) / 10)
+                : 0
+            }
+          : null,
         data: dataAllRecipes
       })
     }

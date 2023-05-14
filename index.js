@@ -1,5 +1,6 @@
 // import / intial
 const express = require('express')
+
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -8,6 +9,8 @@ const xss = require('xss-clean')
 const compression = require('compression')
 const userRoutes = require('./routes/user.route')
 const recipeRoutes = require('./routes/recipe.route')
+const authRoutes = require('./routes/auth.route')
+const profileRoutes = require('./routes/profile.route')
 
 const port = 3000
 
@@ -34,6 +37,12 @@ app.use('/user', userRoutes)
 
 // add recipe route
 app.use('/recipe', recipeRoutes)
+
+// add auth route
+app.use('/auth', authRoutes)
+
+// add profile route
+app.use('/profile', profileRoutes)
 
 app.get('/', (req, res) => res.send('Hello World'))
 

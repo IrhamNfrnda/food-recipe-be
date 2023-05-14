@@ -1,52 +1,66 @@
 const db = require('../database')
 
+// Function to get all recipes
+// Receive with three parameters (page, sort, keyword)
+// And if the params exist, it will be change the query
 const getAllRecipes = async (params) => {
   const { page, sort, keyword } = params
-  // let query = db`SELECT *, count(*) OVER() AS full_count FROM recipes`
-  // if (keyword) {
-  //   query += ` WHERE LOWER(recipes.name) LIKE LOWER(${keyword})`
-  // }
 
-  // if (page && !Number.isNaN(id)) {
-  //   query += ` LIMIT 10 OFFSET ${10 * (page - 1)}`
-  // }
-
-  // if (sort && sort.toLowerCase() === 'asc') {
-  //   query += ` ORDER BY id ASC`
-  // } else {
-  //   query += ` ORDER BY id DESC`
-  // }
-
-  let query
-    // let sort = db`DESC`
-  const isPaginate =
-    page &&
-    !Number.isNaN(page) &&
-    parseInt(page) >= 1
-
-  // check if sort type exist and paginate exist
-  if (sort?.toLowerCase() === 'asc') {
-    if (isPaginate) {
-      sortQuery = db`ASC LIMIT 10 OFFSET ${10 * (parseInt(page) - 1)}`
-    } else {
-      sortQuery = db`ASC`
-    }
-  }
-
-  // check if sort type not exist and paginate exist
-  if (isPaginate && !sort) {
-    sortQuery = db`DESC LIMIT 10 OFFSET ${10 * (parseInt(page) - 1)}`
-  }
+  let query = db`SELECT * FROM recipes`
 
   if (keyword) {
-    query =
-      await db`SELECT *, count(*) OVER() AS full_count FROM recipes WHERE LOWER(recipes.title) LIKE LOWER(${keyword}) ORDER BY id ${sortQuery}`
-  } else {
-    query =
-      await db`SELECT *, count(*) OVER() AS full_count FROM recipes ORDER BY id ${sortQuery}`
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`})`
   }
 
-  return query
+  if (sort && sort === 'asc') {
+    query = db`SELECT * FROM recipes ORDER BY id ASC`
+  } else {
+    query = db`SELECT * FROM recipes ORDER BY id DESC`
+  }
+
+  if (page) {
+    query = db`SELECT * FROM recipes ORDER BY id LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  if (sort && sort === 'asc' && page) {
+    query = db`SELECT * FROM recipes ORDER BY id ASC LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  } else {
+    query = db`SELECT * FROM recipes ORDER BY id DESC LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  if (keyword && sort && sort === 'asc') {
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC`
+  } else {
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC`
+  }
+
+  if (keyword && page) {
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  if (keyword && sort && sort === 'asc' && page) {
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  } else {
+    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
 }
 
 const getRecipeByID = async (params) => {
