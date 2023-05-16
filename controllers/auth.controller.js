@@ -58,7 +58,9 @@ const login = async (req, res) => {
 // Function to register user
 const register = async (req, res) => {
   try {
-    const { email, fullname, phoneNumber, profilePicture, password, role } = req.body
+    const {
+      email, fullname, phoneNumber, password, role
+    } = req.body
 
     // Check if user exist
     const checkUser = await users.getUserByEmail({ email })
@@ -78,7 +80,6 @@ const register = async (req, res) => {
       email,
       fullname,
       phoneNumber,
-      profilePicture,
       password: hashedPassword,
       role
     })

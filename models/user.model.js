@@ -28,7 +28,6 @@ const createUser = async (params) => {
     fullname,
     phoneNumber,
     password,
-    profilePicture,
     role
   } = params
 
@@ -37,7 +36,6 @@ const createUser = async (params) => {
     fullname,
     phone_number: phoneNumber,
     password,
-    profile_picture: profilePicture,
     role
   }
 
@@ -47,7 +45,6 @@ const createUser = async (params) => {
     'fullname',
     'phone_number',
     'password',
-    'profile_picture',
     'role'
   )} returning *`
 

@@ -5,5 +5,6 @@ const { validateToken } = require('../middlewares/auth.middleware')
 
 router.get('/', validateToken, profileController.getProfile)
 router.patch('/', validateToken, validateUpdateProfile, profileController.updateProfile)
+router.patch('/photo', validateToken, profileController.updatePhotoProfile)
 
 module.exports = router

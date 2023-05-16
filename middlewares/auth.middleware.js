@@ -15,7 +15,7 @@ const validateToken = (req, res, next) => {
     authorization?.length
   )
 
-  jwt.verify(token, process.env.PRIVATE_KEY, (err, decoded) => {
+  jwt.verify(token, process.env.PRIVATE_KEY, (err) => {
     if (err) {
       res.status(401).json({
         status: false,
@@ -49,10 +49,9 @@ const validateAdmin = (req, res, next) => {
         status: false,
         message: 'Invalid token, please use correctly token'
       })
-    } else if (decoded.role == '1') {
+    } else if (decoded.role === 1) {
       next()
     } else {
-      console.log(decoded)
       res.status(403).json({
         status: false,
         message: 'Access Denied! You are not admin'

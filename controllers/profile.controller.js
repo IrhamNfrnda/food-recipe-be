@@ -1,17 +1,29 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const cloudinary = require('cloudinary').v2;
 const users = require('../models/user.model')
+
+// Configuration 
+cloudinary.config({
+  cloud_name: "dv4s7dbf2",
+  api_key: "249775284565762",
+  api_secret: "dCWcJShZYwdq4wd2NA2JYTFKk7E"
+});
+
+function getToken (req) {
+  const token = req?.headers?.authorization?.slice(
+    7,
+    req?.headers?.authorization?.length
+  )
+
+  return token
+}
 
 // function to get user data
 // using jwt token
 const getProfile = async (req, res) => {
   try {
-    const token = req?.headers?.authorization?.slice(
-      7,
-      req?.headers?.authorization?.length
-    )
-
-    const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
+    const decoded = jwt.verify(getToken(req), process.env.PRIVATE_KEY)
 
     const user = await users.getUserByID({ id: decoded.id })
 
@@ -33,16 +45,11 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { authorization } = req.headers
+    const {
+      email, fullname, phoneNumber, profilePicture, password
+    } = req.body
 
-    const { email, fullname, phoneNumber, profilePicture, password } = req.body
-
-    const token = authorization?.slice(
-      7,
-      authorization?.length
-    )
-
-    const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
+    const decoded = jwt.verify(getToken(req), process.env.PRIVATE_KEY)
 
     const dataSelectedUser = await users.getUserByID({ id: decoded.id })
 
@@ -86,7 +93,74 @@ const updateProfile = async (req, res) => {
   }
 }
 
+// Function to update photo profile
+// Using cloudinary
+const updatePhotoProfile = async (req, res) => {
+  try {
+    const { photo } = req.files
+
+    // Check if file is empty
+    if (!photo) {
+      return res.status(400).json({
+        status: false,
+        message: 'Photo is required!'
+      })
+    }
+
+    // Check if file is image
+    // using mimetype
+    // accepted file is jpg, jpeg, png, webp
+    const acceptedType = /jpg|jpeg|png|webp/
+    const checkType = acceptedType.test(photo.mimetype)
+
+    if (!checkType) {
+      return res.status(400).json({
+        status: false,
+        message: 'File must be image!'
+      })
+    }
+
+    // Check if file size > 2MB
+    if (photo.size > 2000000) {
+      return res.status(400).json({
+        status: false,
+        message: 'File must be less than 2MB!'
+      })
+    }
+
+    // Verify token and get id
+    const decoded = jwt.verify(getToken(req), process.env.PRIVATE_KEY)
+    const dataSelectedUser = await users.getUserByID({ id: decoded.id })
+
+    // // Upload file to cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(photo.tempFilePath, {public_id: "profilePicture" + decoded.id})
+
+    // Update user data
+    const user = await users.updateUser({
+      id: decoded.id,
+      profilePicture: uploadResponse.secure_url,
+      userData: dataSelectedUser[0]
+    })
+
+    // Remove password from user data
+    delete user[0].password
+
+    return res.status(200).json({
+      status: true,
+      message: 'Success update your photo profile!',
+      data: user
+    })
+    
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    })
+  }
+}
+
 module.exports = {
   getProfile,
-  updateProfile
+  updateProfile,
+  updatePhotoProfile
 }

@@ -7,6 +7,8 @@ const cors = require('cors')
 const helmet = require('helmet')
 const xss = require('xss-clean')
 const compression = require('compression')
+const fileUpload = require('express-fileupload')
+
 const userRoutes = require('./routes/user.route')
 const recipeRoutes = require('./routes/recipe.route')
 const authRoutes = require('./routes/auth.route')
@@ -25,6 +27,14 @@ app.use(xss())
 
 // use cors
 app.use(cors())
+
+// grant access to upload file
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+  })
+)
 
 // compress
 app.use(compression())
