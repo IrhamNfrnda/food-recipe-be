@@ -5,9 +5,9 @@ const users = require('../models/user.model')
 
 // Configuration 
 cloudinary.config({
-  cloud_name: "dv4s7dbf2",
-  api_key: "249775284565762",
-  api_secret: "dCWcJShZYwdq4wd2NA2JYTFKk7E"
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
 });
 
 function getToken (req) {
@@ -159,8 +159,46 @@ const updatePhotoProfile = async (req, res) => {
   }
 }
 
+// Function to delete photo profile
+// Using cloudinary
+const deletePhotoProfile = async (req, res) => {
+  try {
+    // Verify token and get id
+    const decoded = jwt.verify(getToken(req), process.env.PRIVATE_KEY)
+    const dataSelectedUser = await users.getUserByID({ id: decoded.id })
+
+    // Delete file from cloudinary
+    const uploadResponse = await cloudinary.uploader.destroy("profilePicture" + decoded.id)
+
+    console.log(uploadResponse)
+
+    // Update user data
+    const user = await users.updateUser({
+      id: decoded.id,
+      profilePicture: "https://res.cloudinary.com/dv4s7dbf2/image/upload/v1684265819/default_photo_m6iphg.webp",
+      userData: dataSelectedUser[0]
+    })
+
+    // Remove password from user data
+    delete user[0].password
+
+    return res.status(200).json({
+      status: true,
+      message: 'Success delete your photo profile!',
+      data: user
+    })
+    
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    })
+  }
+}
+
 module.exports = {
   getProfile,
   updateProfile,
-  updatePhotoProfile
+  updatePhotoProfile,
+  deletePhotoProfile
 }

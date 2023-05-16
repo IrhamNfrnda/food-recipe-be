@@ -4,54 +4,124 @@ const db = require('../database')
 // Receive with three parameters (page, sort, keyword)
 // And if the params exist, it will be change the query
 const getAllRecipes = async (params) => {
-  const { page, sort, keyword } = params
 
-  let query = db`SELECT * FROM recipes`
+  let query = await db`SELECT * FROM recipes ORDER BY id DESC`
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithSort = async (params) => {
+  const { sort } = params
+  
+  if (sort === 'asc') {
+    query = await db`SELECT * FROM recipes ORDER BY id ASC`
+  } else {
+    query = await db`SELECT * FROM recipes ORDER BY id DESC`
+  }
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithKeyword = async (params) => {
+  const { keyword } = params
 
   if (keyword) {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`})`
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`})`
   }
 
-  if (sort && sort === 'asc') {
-    query = db`SELECT * FROM recipes ORDER BY id ASC`
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithPage = async (params) => {
+  const { page } = params
+
+  if (page && !Number.isNaN(page) && page > 0) {
+    query = await db`SELECT * FROM recipes ORDER BY id LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithSortAndKeyword = async (params) => {
+  const { sort, keyword } = params
+
+  if (sort === 'asc' && keyword) {
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC`
+  } else  {
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC`
+  }
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithSortAndPage = async (params) => {
+  const { sort, page } = params
+
+  if (sort === 'asc' && page && !Number.isNaN(page) && page > 0) {
+    query = await db`SELECT * FROM recipes ORDER BY id ASC LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
   } else {
-    query = db`SELECT * FROM recipes ORDER BY id DESC`
-  }
-
-  if (page) {
-    query = db`SELECT * FROM recipes ORDER BY id LIMIT ${10} OFFSET ${
+    query = await db`SELECT * FROM recipes ORDER BY id DESC LIMIT ${10} OFFSET ${
       10 * (page - 1)
     }`
   }
 
-  if (sort && sort === 'asc' && page) {
-    query = db`SELECT * FROM recipes ORDER BY id ASC LIMIT ${10} OFFSET ${
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+
+}
+
+const getAllRecipesWithKeywordAndPage = async (params) => {
+  const { keyword, page } = params
+
+  if (keyword && page && !Number.isNaN(page) && page > 0) {
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id LIMIT ${10} OFFSET ${
+      10 * (page - 1)
+    }`
+  }
+
+  const data = await query
+
+  const fullCount = await db`SELECT COUNT(*) FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`})`
+
+  return [{ full_count: fullCount[0].count }, ...data]
+}
+
+const getAllRecipesWithSortAndKeywordAndPage = async (params) => {
+  const { sort, keyword, page } = params
+
+  if (sort === 'asc' && keyword && page && !Number.isNaN(page) && page > 0) {
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC LIMIT ${10} OFFSET ${
       10 * (page - 1)
     }`
   } else {
-    query = db`SELECT * FROM recipes ORDER BY id DESC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
-  }
-
-  if (keyword && sort && sort === 'asc') {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC`
-  } else {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC`
-  }
-
-  if (keyword && page) {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
-  }
-
-  if (keyword && sort && sort === 'asc' && page) {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
-  } else {
-    query = db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC LIMIT ${10} OFFSET ${
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC LIMIT ${10} OFFSET ${
       10 * (page - 1)
     }`
   }
@@ -156,5 +226,12 @@ module.exports = {
   createRecipe,
   updateRecipe,
   deleteRecipe,
-  getRecipeByTitle
+  getRecipeByTitle,
+  getAllRecipesWithSort,
+  getAllRecipesWithKeyword,
+  getAllRecipesWithPage,
+  getAllRecipesWithSortAndKeyword,
+  getAllRecipesWithSortAndPage,
+  getAllRecipesWithKeywordAndPage,
+  getAllRecipesWithSortAndKeywordAndPage
 }
