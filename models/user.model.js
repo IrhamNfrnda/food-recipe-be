@@ -27,9 +27,15 @@ const createUser = async (params) => {
     email,
     fullname,
     phoneNumber,
-    password,
-    role
+    password
   } = params
+
+  let { role } = params
+
+  // Check if role is not inputted
+  if (!role) {
+    role = 2
+  }
 
   const payload = {
     email,

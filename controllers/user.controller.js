@@ -66,7 +66,7 @@ const postUsers = async (req, res) => {
       fullname,
       phoneNumber,
       password,
-      profilePicture
+      role
     } = req.body
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -85,7 +85,7 @@ const postUsers = async (req, res) => {
       fullname,
       phoneNumber,
       password: hashedPassword,
-      profilePicture
+      role
     })
     return res.status(200).json({
       status: true,

@@ -1,5 +1,6 @@
 const recipes = require('../models/recipe.model')
 const cloudinary = require('cloudinary').v2;
+const { storeRecipesInRedis } = require('../middlewares/redis.middleware')
 
 // Configuration 
 cloudinary.config({
@@ -91,6 +92,10 @@ const getRecipes = async (req, res) => {
       })
     }
     
+    const totalData = dataAllRecipes?.length;
+    // Store data to redis
+    storeRecipesInRedis(dataAllRecipes, totalData);
+
 
     if (dataAllRecipes.length > 0) {
       return res.status(200).json({

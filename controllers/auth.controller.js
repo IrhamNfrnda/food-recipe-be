@@ -59,7 +59,7 @@ const login = async (req, res) => {
 const register = async (req, res) => {
   try {
     const {
-      email, fullname, phoneNumber, password, role
+      email, fullname, phoneNumber, password
     } = req.body
 
     // Check if user exist
@@ -72,6 +72,14 @@ const register = async (req, res) => {
       })
     }
 
+    // Check if role is inputed
+    if (req.body.role) {
+      return res.status(401).json({
+        status: false,
+        message: 'You cannot input role!'
+      })  
+    }
+
     // Hash password
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
@@ -80,8 +88,7 @@ const register = async (req, res) => {
       email,
       fullname,
       phoneNumber,
-      password: hashedPassword,
-      role
+      password: hashedPassword
     })
 
     return res.status(200).json({
