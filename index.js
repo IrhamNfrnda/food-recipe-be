@@ -56,5 +56,9 @@ app.use('/profile', profileRoutes)
 
 app.get('/', (req, res) => res.send('Hello World'))
 
+app.use("*", (req, res) => {
+  res.status(404).send('404 Not Found')
+})
+
 // listener
 app.listen(port)

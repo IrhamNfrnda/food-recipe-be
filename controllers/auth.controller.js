@@ -2,7 +2,14 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const users = require('../models/user.model')
 
-// Funvtion to login user
+const generateAccessToken = (user) => {
+  return jwt.sign(user, process.env.PRIVATE_KEY, { expiresIn: '1d' })
+}
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(user, process.env.PRIVATE_KEY, { expiresIn: '1y' })
+}
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body
@@ -31,22 +38,31 @@ const login = async (req, res) => {
     }
 
     // Create token
-    const token = jwt.sign(
-      {
-        id: checkUser[0].id,
-        email: checkUser[0].email,
-        role: checkUser[0].role
-      },
-      process.env.PRIVATE_KEY
-    )
+    const token = generateAccessToken({
+      id: checkUser[0].id,
+      email: checkUser[0].email,
+      role: checkUser[0].role
+    })
 
+    const refreshToken = generateRefreshToken({
+      id: checkUser[0].id,
+      email: checkUser[0].email,
+      role: checkUser[0].role
+    })
+
+    // Save refresh token to database
+    await users.updateUser({ id: checkUser[0].id }, { refreshToken })
+
+    
     return res.status(200).json({
       status: true,
       message: 'Success Login!',
       data: {
-        token
+        token,
+        refreshToken
       }
     })
+
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -119,8 +135,52 @@ const logout = async (req, res) => {
   }
 }
 
+// Function to refresh token
+// Accept refresh token from client
+// Check if refresh token is valid
+// Create new access token
+// Send new access token to client
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body
+
+    // Check if refresh token is valid
+    const checkRefreshToken = await users.getUserByRefreshToken({ refreshToken })
+
+    if (checkRefreshToken.length < 1) {
+      return res.status(401).json({
+        status: false,
+        message: 'Refresh token is not valid!'
+      })
+    }
+
+    // Create new access token
+    const token = generateAccessToken({
+      id: checkRefreshToken[0].id,
+      email: checkRefreshToken[0].email,
+      role: checkRefreshToken[0].role
+    })
+
+    return res.status(200).json({
+      status: true,
+      message: 'Success Refresh Token!',
+      data: {
+        token
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    })
+  }
+}
+
+
+
 module.exports = {
   login,
   register,
-  logout
+  logout,
+  refreshToken
 }
