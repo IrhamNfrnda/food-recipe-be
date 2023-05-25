@@ -16,7 +16,7 @@ This is a RESTful API for a food recipes app built using Express.js. The API all
 2. Install the dependencies:
 
    ``` shell
-   cd food-recipes-app-api
+   cd food-recipes-be
    npm install
 
 3. Set up environment variables using .env.example
