@@ -31,4 +31,4 @@ This is a RESTful API for a food recipes app built using Express.js. The API all
 ## API Documentation
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the <a href="https://chat.openai.com/LICENSE">MIT License</a>.
