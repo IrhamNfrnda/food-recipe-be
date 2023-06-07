@@ -186,7 +186,7 @@ const postRecipes = async (req, res) => {
     }
 
     // Upload file to cloudinary
-    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, {public_id: "recipePicture" + userId})
+    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, {public_id: "recipePicture" + title, folder: "recipePicture"})
 
     const createRecipe = await recipes.createRecipe({
       recipePicture: uploadResponse.secure_url,

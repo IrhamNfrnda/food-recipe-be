@@ -59,6 +59,11 @@ const login = async (req, res) => {
       }
     )
 
+    // remove password from user data
+    delete checkUser[0].password
+
+    // remove refresh token from user data
+    delete checkUser[0].refreshToken
     
     return res.status(200).json({
       status: true,
