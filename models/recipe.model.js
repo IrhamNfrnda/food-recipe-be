@@ -183,7 +183,8 @@ const createRecipe = async (params) => {
     'title',
     'ingredients',
     'video_link',
-    'user_id'
+    'user_id',
+    'slug'
   )} returning *`
 
   return query
