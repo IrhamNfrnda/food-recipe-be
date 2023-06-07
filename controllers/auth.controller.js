@@ -64,6 +64,7 @@ const login = async (req, res) => {
       status: true,
       message: 'Success Login!',
       data: {
+        user: checkUser[0],
         token,
         refreshToken
       }
