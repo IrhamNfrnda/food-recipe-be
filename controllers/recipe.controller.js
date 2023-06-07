@@ -1,4 +1,5 @@
 const recipes = require('../models/recipe.model')
+const users = require('../models/user.model')
 const cloudinary = require('cloudinary').v2;
 const { storeRecipesInRedis } = require('../middlewares/redis.middleware')
 
@@ -131,8 +132,19 @@ const postRecipes = async (req, res) => {
       recipePicture,
       title,
       ingredients,
-      videoLink
+      videoLink,
+      userId
     } = req.body
+
+    // Check if user id is in database
+    const checkUserId = await users.getUserByID({ id: userId })
+
+    if (!checkUserId.length) {
+      return res.status(401).json({
+        status: false,
+        message: 'User ID Not Found!'
+      })
+    }
 
     const checkTitle = await recipes.getRecipeByTitle({ title })
 
@@ -147,7 +159,8 @@ const postRecipes = async (req, res) => {
       recipePicture,
       title,
       ingredients,
-      videoLink
+      videoLink,
+      userId
     })
 
     return res.status(200).json({

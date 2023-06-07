@@ -154,14 +154,16 @@ const createRecipe = async (params) => {
     recipePicture,
     title,
     ingredients,
-    videoLink
+    videoLink,
+    userId
   } = params
 
   const payload = {
     recipe_picture: recipePicture,
     title,
     ingredients,
-    video_link: videoLink
+    video_link: videoLink,
+    user_id: userId
   }
 
   const query = await db`INSERT INTO recipes ${db(
@@ -169,7 +171,8 @@ const createRecipe = async (params) => {
     'recipe_picture',
     'title',
     'ingredients',
-    'video_link'
+    'video_link',
+    'user_id'
   )} returning *`
 
   return query
