@@ -129,12 +129,13 @@ const getRecipes = async (req, res) => {
 const postRecipes = async (req, res) => {
   try {
     const {
-      recipePicture,
       title,
       ingredients,
       videoLink,
       userId
     } = req.body
+
+    const { recipePicture } = req.files
 
     // Check if user id is in database
     const checkUserId = await users.getUserByID({ id: userId })
@@ -155,8 +156,40 @@ const postRecipes = async (req, res) => {
       })
     }
 
+    // Check if file is empty
+    if (!recipePicture) {
+      return res.status(400).json({
+        status: false,
+        message: 'Photo is required!'
+      })
+    }
+
+    // Check if file is image
+    // using mimetype
+    // accepted file is jpg, jpeg, png, webp
+    const acceptedType = /jpg|jpeg|png|webp/
+    const checkType = acceptedType.test(recipePicture.mimetype)
+
+    if (!checkType) {
+      return res.status(400).json({
+        status: false,
+        message: 'File must be image!'
+      })
+    }
+
+    // Check if file size > 2MB
+    if (recipePicture.size > 2000000) {
+      return res.status(400).json({
+        status: false,
+        message: 'File must be less than 2MB!'
+      })
+    }
+
+    // Upload file to cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, {public_id: "recipePicture" + userId})
+
     const createRecipe = await recipes.createRecipe({
-      recipePicture,
+      recipePicture: uploadResponse.secure_url,
       title,
       ingredients,
       videoLink,
