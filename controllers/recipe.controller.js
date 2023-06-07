@@ -126,6 +126,33 @@ const getRecipes = async (req, res) => {
   }
 }
 
+// Get recipes by slug
+const getRecipesBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params
+
+    const dataSelectedRecipe = await recipes.getRecipeBySlug({ slug })
+
+    if (!dataSelectedRecipe.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'Recipe Not Found!'
+      })
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Get data success',
+      data: dataSelectedRecipe
+    })
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    })
+  }
+}
+
 const postRecipes = async (req, res) => {
   try {
     const {

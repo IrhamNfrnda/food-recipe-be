@@ -141,6 +141,14 @@ const getRecipeByID = async (params) => {
   return query
 }
 
+const getRecipeBySlug = async (params) => {
+  const { slug } = params
+
+  const query = await db`SELECT * FROM recipes WHERE slug = ${slug}`
+
+  return query
+}
+
 const getAllRecipesPagination = async (params) => {
   const { limit, page } = params
 
@@ -158,12 +166,15 @@ const createRecipe = async (params) => {
     userId
   } = params
 
+  const slug = title?.toLowerCase()?.split(" ").join("-")
+
   const payload = {
     recipe_picture: recipePicture,
     title,
     ingredients,
     video_link: videoLink,
-    user_id: userId
+    user_id: userId,
+    slug
   }
 
   const query = await db`INSERT INTO recipes ${db(
