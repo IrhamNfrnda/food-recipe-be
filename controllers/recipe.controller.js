@@ -93,8 +93,8 @@ const getRecipes = async (req, res) => {
     }
     
     const totalData = dataAllRecipes?.length;
-    // Store data to redis
-    storeRecipesInRedis(dataAllRecipes, totalData);
+    // // Store data to redis
+    // storeRecipesInRedis(dataAllRecipes, totalData);
 
 
     if (dataAllRecipes.length > 0) {
