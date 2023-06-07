@@ -237,6 +237,7 @@ module.exports = {
   getAllRecipes,
   getAllRecipesPagination,
   getRecipeByID,
+  getRecipeBySlug,
   createRecipe,
   updateRecipe,
   deleteRecipe,

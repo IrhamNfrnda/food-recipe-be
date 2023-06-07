@@ -403,6 +403,7 @@ const editPhotoRecipe = async (req, res) => {
 
 module.exports = {
   getRecipes,
+  getRecipesBySlug,
   postRecipes,
   editRecipes,
   deleteRecipes,
