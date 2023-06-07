@@ -51,7 +51,13 @@ const login = async (req, res) => {
     })
 
     // Save refresh token to database
-    await users.updateUser({ id: checkUser[0].id }, { refreshToken })
+    await users.updateUser(
+      {
+        id: checkUser[0].id,
+        refreshToken,
+        userData: checkUser[0]
+      }
+    )
 
     
     return res.status(200).json({

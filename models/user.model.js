@@ -66,6 +66,7 @@ const updateUser = async (params) => {
     password,
     profilePicture,
     role,
+    refreshToken,
     userData
   } = params
 
@@ -75,7 +76,8 @@ const updateUser = async (params) => {
     phone_number: phoneNumber ?? userData.phone_number,
     password: password ?? userData.password,
     profile_picture: profilePicture ?? userData.profile_picture,
-    role: role ?? userData.role
+    role: role ?? userData.role,
+    refreshToken: refreshToken ?? userData.refreshToken
   }
 
   const query = await db`UPDATE users set ${db(
@@ -85,7 +87,8 @@ const updateUser = async (params) => {
     'phone_number',
     'password',
     'profile_picture',
-    'role'
+    'role',
+    'refreshToken'
   )} WHERE id = ${id} returning *`
 
   return query
