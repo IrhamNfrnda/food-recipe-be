@@ -6,7 +6,7 @@ const { validateToken } = require('../middlewares/auth.middleware')
 
 router.get('/:id?', recipeController.getRecipes)
 router.get('/detail/:slug?', recipeController.getRecipesBySlug)
-router.get('/user/:id?', recipeController.getRecipesByUserId)
+router.get('/user/:id?', recipeController.getRecipesByUserID)
 router.post('/', validateToken, validateInputRecipe, recipeController.postRecipes)
 router.patch('/:id', validateToken, validateInputRecipe, recipeController.editRecipes)
 router.delete('/:id', validateToken, recipeController.deleteRecipes)
