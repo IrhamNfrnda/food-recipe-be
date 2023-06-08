@@ -149,6 +149,14 @@ const getRecipeBySlug = async (params) => {
   return query
 }
 
+const getRecipeByUserID = async (params) => {
+  const { userId } = params
+
+  const query = await db`SELECT * FROM recipes WHERE user_id = ${userId}`
+
+  return query
+}
+
 const getAllRecipesPagination = async (params) => {
   const { limit, page } = params
 
@@ -243,6 +251,7 @@ module.exports = {
   updateRecipe,
   deleteRecipe,
   getRecipeByTitle,
+  getRecipeByUserID,
   getAllRecipesWithSort,
   getAllRecipesWithKeyword,
   getAllRecipesWithPage,

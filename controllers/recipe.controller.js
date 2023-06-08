@@ -153,6 +153,42 @@ const getRecipesBySlug = async (req, res) => {
   }
 }
 
+// Get recipes by user id
+const getRecipesByUserID = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        status: false,
+        message: 'ID must be integer'
+      })
+    }
+
+    const dataSelectedRecipe = await recipes.getRecipeByUserID({ id })
+
+    if (!dataSelectedRecipe.length) {
+      return res.status(200).json({
+        status: false,
+        message: 'User ID Not Found!'
+      })
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Get data success',
+      data: dataSelectedRecipe
+    })
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    })
+  }
+}
+
+// Post recipes
+
 const postRecipes = async (req, res) => {
   try {
     const {
@@ -404,6 +440,7 @@ const editPhotoRecipe = async (req, res) => {
 module.exports = {
   getRecipes,
   getRecipesBySlug,
+  getRecipesByUserID,
   postRecipes,
   editRecipes,
   deleteRecipes,
