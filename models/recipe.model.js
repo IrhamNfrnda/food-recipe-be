@@ -150,9 +150,9 @@ const getRecipeBySlug = async (params) => {
 }
 
 const getRecipeByUserID = async (params) => {
-  const { userId } = params
+  const { id } = params
 
-  const query = await db`SELECT * FROM recipes WHERE user_id = ${userId}`
+  const query = await db`SELECT * FROM recipes WHERE user_id = ${id}`
 
   return query
 }
