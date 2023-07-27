@@ -1,34 +1,62 @@
-# Food Recipes App API
+# Food Recipe BackEnd using Express 🍽️🔧
+
+## Project Description 🚀
 
 This is a RESTful API for a food recipes app built using Express.js. The API allows users to perform CRUD operations on user data and recipe data, and also provides authentication using JWT (JSON Web Tokens). Users can also retrieve their own profile data.
 
-## Prerequisites
+## Technologies Used 💻🛠️
 
-- Node.js and npm should be installed on your machine.
+The Food Recipe BackEnd project is built using the following technologies:
 
-## Getting Started
+- JavaScript
+- Express.js (Backend framework)
+- PostgreSQL (Relational Database)
+- Redis (In-memory data store)
+- XSS (Cross-Site Scripting) Protection
+- Cloudinary (Cloud-based image and video management)
 
-1. Clone the repository:
+## Project Repository 📂🔗
 
-   ```shell
-   git clone https://github.com/your-username/food-recipes-app-api.git
+The Front End repository for this project can be found on GitHub at the following link:
+[Food Recipe Front End Repository](https://github.com/IrhamNfrnda/food-recipe-fe-react)
 
-2. Install the dependencies:
+The Mobile App repository for this project can be found on GitHub at the following link:
+[Food Recipe Mobile App Repository](https://github.com/IrhamNfrnda/Food-Recipe-App)
 
-   ``` shell
-   cd food-recipes-be
-   npm install
+## Features ✨🍔🍰
 
-3. Set up environment variables using .env.example
+- RESTful API endpoints for user data (CRUD operations)
+- RESTful API endpoints for recipe data (CRUD operations)
+- JWT-based authentication and authorization for user access
+- Protection against XSS attacks
+- PostgreSQL database for storing user and recipe data
+- In-memory data caching with Redis for improved performance
+- Cloudinary integration for managing images and videos
 
-4. Start the server:
+## Getting Started 🏁🚀
 
-   ``` shell
-   npm run start
-   
- The API will start running on http://localhost:3000.
+To set up the Food Recipe BackEnd project locally, follow these steps:
 
-## API Documentation
+1. Clone the repository from the provided link.
+2. Install the required dependencies using npm.
+3. Set up your PostgreSQL database and update the configuration accordingly.
+4. Set up Cloudinary account and update the credentials in the project.
+5. Ensure you have Node.js and npm installed on your system.
+6. Start the server using the command `npm start`.
+7. Access the API endpoints through your preferred API testing tool.
 
-## License
-This project is licensed under the <a href="https://chat.openai.com/LICENSE">MIT License</a>.
+## Contributions 🤝🌟
+
+Contributions to the Food Recipe BackEnd project are welcome. If you find any issues or have suggestions for improvements, please feel free to open an issue or create a pull request in the repository.
+
+## License 📜📝
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact 📞📧
+
+If you have any questions or inquiries regarding this project, feel free to contact me at [your.email@example.com](mailto:your.email@example.com).
+
+---
+
+Thank you for exploring the Food Recipe BackEnd using Express portfolio. This API serves as the backbone of the food recipes app, providing essential functionality for users to interact with the platform. Happy coding and developing! 🍳🥗👩‍🍳👨‍🍳
