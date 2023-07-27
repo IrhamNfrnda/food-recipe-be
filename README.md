@@ -23,6 +23,11 @@ The Front End repository for this project can be found on GitHub at the followin
 The Mobile App repository for this project can be found on GitHub at the following link:
 [Food Recipe Mobile App Repository](https://github.com/IrhamNfrnda/Food-Recipe-App)
 
+## Postman Documentation 📚📝
+
+For detailed information about the API endpoints and how to use them, please refer to our Postman documentation:
+[Food Recipe API Postman Documentation](https://documenter.getpostman.com/view/14500995/2s93eYVXmQ)
+
 ## Features ✨🍔🍰
 
 - RESTful API endpoints for user data (CRUD operations)
