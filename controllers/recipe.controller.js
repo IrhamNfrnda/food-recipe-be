@@ -126,32 +126,43 @@ const getRecipes = async (req, res) => {
   }
 }
 
-// Get recipes by slug
 const getRecipesBySlug = async (req, res) => {
   try {
-    const { slug } = req.params
+    const { slug } = req.params;
 
-    const dataSelectedRecipe = await recipes.getRecipeBySlug({ slug })
+    const dataSelectedRecipe = await recipes.getRecipeBySlug({ slug });
 
     if (!dataSelectedRecipe.length) {
-      return res.status(200).json({
+      return res.status(404).json({
         status: false,
-        message: 'Recipe Not Found!'
-      })
+        message: 'Recipe Not Found!',
+      });
     }
+
+    // Get comments for the recipe
+    const recipeId = await dataSelectedRecipe[0].id;
+    const comments = await recipes.getCommentsByRecipeID(recipeId);
+
+    // Include comments in the response
+    const recipeWithComments = {
+      ...dataSelectedRecipe[0],
+      comments: comments || [], 
+    };
 
     return res.status(200).json({
       status: true,
       message: 'Get data success',
-      data: dataSelectedRecipe
-    })
+      data: recipeWithComments,
+    });
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
+};
+
+
 
 // Get recipes by user id
 const getRecipesByUserID = async (req, res) => {
@@ -435,6 +446,43 @@ const editPhotoRecipe = async (req, res) => {
   }
 }
 
+const postComment = async (req, res) => {
+  try {
+    const { userId, recipeId, comment } = req.body;
+
+    // Check if user exists
+    const user = await users.getUserByID({ id: userId });
+    if (!user.length) {
+      return res.status(401).json({
+        status: false,
+        message: 'User not found!'
+      });
+    }
+
+    // Check if recipe exists
+    const recipe = await recipes.getRecipeByID({ id: recipeId });
+    if (!recipe.length) {
+      return res.status(404).json({
+        status: false,
+        message: 'Recipe not found!'
+      });
+    }
+
+    // Post the comment
+    const newComment = await recipes.postComment({userId, recipeId, comment});
+
+    return res.status(200).json({
+      status: true,
+      message: 'Comment posted successfully!',
+      data: newComment
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    });
+  }
+};
 
 
 module.exports = {
@@ -444,5 +492,6 @@ module.exports = {
   postRecipes,
   editRecipes,
   deleteRecipes,
-  editPhotoRecipe
+  editPhotoRecipe,
+  postComment,
 }

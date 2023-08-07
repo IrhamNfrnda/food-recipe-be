@@ -242,6 +242,30 @@ const getRecipeByTitle = async (params) => {
   return query
 }
 
+const getCommentsByRecipeID = async (recipeId) => {
+  const query = await db`SELECT comments.*, users.fullname, users.profile_picture
+                         FROM comments
+                         INNER JOIN users ON comments.id_user = users.id
+                         WHERE comments.id_recipe = ${recipeId}`
+  return query;
+}
+
+
+const postComment = async (params) => {
+  const { userId, recipeId, comment } = params
+
+  const payload = {
+    id_user: userId,
+    id_recipe: recipeId,
+    comment: comment
+  }
+
+  const query = await db`INSERT INTO comments ${db(payload, 'id_user', 'id_recipe', 'comment')} returning *`
+  return query;
+}
+
+
+
 module.exports = {
   getAllRecipes,
   getAllRecipesPagination,
@@ -258,5 +282,7 @@ module.exports = {
   getAllRecipesWithSortAndKeyword,
   getAllRecipesWithSortAndPage,
   getAllRecipesWithKeywordAndPage,
-  getAllRecipesWithSortAndKeywordAndPage
+  getAllRecipesWithSortAndKeywordAndPage,
+  getCommentsByRecipeID,
+  postComment
 }

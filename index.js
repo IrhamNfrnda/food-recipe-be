@@ -14,7 +14,7 @@ const recipeRoutes = require('./routes/recipe.route')
 const authRoutes = require('./routes/auth.route')
 const profileRoutes = require('./routes/profile.route')
 
-const port = 3000
+const port = 1234
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))

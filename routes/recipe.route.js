@@ -11,5 +11,6 @@ router.post('/', validateToken, validateInputRecipe, recipeController.postRecipe
 router.patch('/:id', validateToken, validateInputRecipe, recipeController.editRecipes)
 router.delete('/:id', validateToken, recipeController.deleteRecipes)
 router.patch('/photo/:id', validateToken, recipeController.editPhotoRecipe)
+router.post('/comment', validateToken, recipeController.postComment)
 
 module.exports = router
