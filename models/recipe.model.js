@@ -169,6 +169,7 @@ const createRecipe = async (params) => {
   const {
     recipePicture,
     title,
+    category,
     ingredients,
     videoLink,
     userId
@@ -179,6 +180,7 @@ const createRecipe = async (params) => {
   const payload = {
     recipe_picture: recipePicture,
     title,
+    category,
     ingredients,
     video_link: videoLink,
     user_id: userId,
@@ -192,7 +194,8 @@ const createRecipe = async (params) => {
     'ingredients',
     'video_link',
     'user_id',
-    'slug'
+    'slug',
+    'category'
   )} returning *`
 
   return query
@@ -264,7 +267,50 @@ const postComment = async (params) => {
   return query;
 }
 
+const likeRecipe = async ({ userId, recipeId }) => {
+  try {
+    const query = 'INSERT INTO likes (id_user, id_recipe) VALUES (?, ?)';
+    const result = await db.query(query, [userId, recipeId]);
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
 
+const unlikeRecipe = async ({ userId, recipeId }) => {
+  try {
+    const query = 'DELETE FROM likes WHERE id_user = ? AND id_recipe = ?';
+    const result = await db.query(query, [userId, recipeId]);
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getLikeCount = async ({ recipeId }) => {
+  try {
+    const query = 'SELECT COUNT(*) AS likeCount FROM likes WHERE id_recipe = ?';
+    const result = await db.query(query, [recipeId]);
+    return result[0].likeCount;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const saveRecipe = async ({ userId, recipeId }) => {
+  const query = await db`INSERT INTO saved_recipes (id_user, id_recipe) VALUES (${userId}, ${recipeId})`;
+  return query;
+};
+
+const getSavedRecipesByUserId = async (userId) => {
+  const query = await db`
+    SELECT recipes.*
+    FROM saved_recipes
+    INNER JOIN recipes ON saved_recipes.id_recipe = recipes.id
+    WHERE saved_recipes.id_user = ${userId}
+  `;
+  return query;
+};
 
 module.exports = {
   getAllRecipes,
@@ -284,5 +330,10 @@ module.exports = {
   getAllRecipesWithKeywordAndPage,
   getAllRecipesWithSortAndKeywordAndPage,
   getCommentsByRecipeID,
-  postComment
+  postComment,
+  likeRecipe,
+  unlikeRecipe,
+  getLikeCount,
+  saveRecipe,
+  getSavedRecipesByUserId,
 }

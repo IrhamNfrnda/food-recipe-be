@@ -199,11 +199,11 @@ const getRecipesByUserID = async (req, res) => {
 }
 
 // Post recipes
-
 const postRecipes = async (req, res) => {
   try {
     const {
       title,
+      category,
       ingredients,
       videoLink,
       userId
@@ -265,6 +265,7 @@ const postRecipes = async (req, res) => {
     const createRecipe = await recipes.createRecipe({
       recipePicture: uploadResponse.secure_url,
       title,
+      category,
       ingredients,
       videoLink,
       userId
@@ -484,6 +485,136 @@ const postComment = async (req, res) => {
   }
 };
 
+const likeRecipe = async (req, res) => {
+  try {
+    const { userId } = req.body; // Assuming you're sending userId in the request body
+    const { id: recipeId } = req.params;
+
+    const recipe = await recipes.getRecipeByID({ id: recipeId });
+    if (!recipe.length) {
+      return res.status(404).json({
+        status: false,
+        message: 'Recipe Not Found!',
+      });
+    }
+
+    // Check if the user has already liked the recipe
+    const existingLike = await recipes.checkRecipeLike({ userId, recipeId });
+    if (existingLike.length > 0) {
+      return res.status(400).json({
+        status: false,
+        message: 'You have already liked this recipe!',
+      });
+    }
+
+    // Like the recipe
+    await recipes.likeRecipe({ userId, recipeId });
+
+    // Get updated like count
+    const likeCount = await recipes.getLikeCount({ recipeId });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Recipe liked successfully!',
+      likeCount: likeCount,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+const unlikeRecipe = async (req, res) => {
+  try {
+    const { userId } = req.body; 
+    const { id: recipeId } = req.params;
+
+    const recipe = await recipes.getRecipeByID({ id: recipeId });
+    if (!recipe.length) {
+      return res.status(404).json({
+        status: false,
+        message: 'Recipe Not Found!',
+      });
+    }
+
+    // Check if the user has already liked the recipe
+    const existingLike = await recipes.checkRecipeLike({ userId, recipeId });
+    if (existingLike.length === 0) {
+      return res.status(400).json({
+        status: false,
+        message: "You haven't liked this recipe!",
+      });
+    }
+
+    // Unlike the recipe
+    await recipes.unlikeRecipe({ userId, recipeId });
+
+    // Get updated like count
+    const likeCount = await recipes.getLikeCount({ recipeId });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Recipe unliked successfully!',
+      likeCount: likeCount,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+const saveRecipe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    // Check if the recipe exists
+    const recipe = await recipes.getRecipeByID({ id });
+    if (!recipe.length) {
+      return res.status(404).json({
+        status: false,
+        message: 'Recipe Not Found!',
+      });
+    }
+
+    // Save the recipe
+    await saveRecipe({ userId, recipeId: id });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Recipe saved successfully!',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+}
+
+const getSaved = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    // Get saved recipes for the user
+    const savedRecipes = await getSavedRecipesByUserId(userId);
+
+    return res.status(200).json({
+      status: true,
+      message: 'Saved recipes retrieved successfully!',
+      data: savedRecipes,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+}
 
 module.exports = {
   getRecipes,
@@ -494,4 +625,8 @@ module.exports = {
   deleteRecipes,
   editPhotoRecipe,
   postComment,
+  likeRecipe,
+  unlikeRecipe,
+  saveRecipe,
+  getSaved,
 }

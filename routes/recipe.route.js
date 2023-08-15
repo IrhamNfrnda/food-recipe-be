@@ -12,5 +12,9 @@ router.patch('/:id', validateToken, validateInputRecipe, recipeController.editRe
 router.delete('/:id', validateToken, recipeController.deleteRecipes)
 router.patch('/photo/:id', validateToken, recipeController.editPhotoRecipe)
 router.post('/comment', validateToken, recipeController.postComment)
+router.post('/:id/like', validateToken, recipeController.likeRecipe);
+router.post('/:id/unlike', validateToken, recipeController.unlikeRecipe);
+router.post('/save/:id', validateToken, recipeController.saveRecipe);
+router.get('/saved', validateToken, recipeController.getSaved);
 
 module.exports = router
