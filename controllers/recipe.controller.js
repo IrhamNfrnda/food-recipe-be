@@ -650,7 +650,6 @@ const unsaveRecipe = async (req, res) => {
     // Unlike the recipe
     await recipes.unsaveRecipe({ userId, recipeId });
 
-
     return res.status(200).json({
       status: true,
       message: 'Recipe unsaved successfully!'
@@ -662,6 +661,57 @@ const unsaveRecipe = async (req, res) => {
     });
   }
 };
+
+const getSaved = async (req, res) => {
+  try {
+    const token = req?.headers?.authorization?.slice(
+      7,
+      req?.headers?.authorization?.length
+    );
+    const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
+    userId = await decoded.id;
+
+    // Get saved recipes for the user
+    const savedRecipes = await recipes.getSavedRecipesByUserId({ userId });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Saved recipes retrieved successfully!',
+      data: savedRecipes,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+}
+
+const getLiked = async (req, res) => {
+  try {
+    const token = req?.headers?.authorization?.slice(
+      7,
+      req?.headers?.authorization?.length
+    );
+    const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
+    userId = await decoded.id;
+
+    // Get saved recipes for the user
+    const likedRecipes = await recipes.getLikedRecipesByUserId({ userId });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Liked recipes retrieved successfully!',
+      data: likedRecipes,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+}
+
 
 module.exports = {
   getRecipes,
@@ -676,4 +726,6 @@ module.exports = {
   unlikeRecipe,
   saveRecipe,
   unsaveRecipe,
+  getSaved,
+  getLiked,
 }

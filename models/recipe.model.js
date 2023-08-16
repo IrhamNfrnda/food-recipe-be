@@ -283,7 +283,7 @@ const getLikeCount = async ({ recipeId }) => {
   return query
 };
 
-const checkRecipeLike = async ({userId, recipeId}) => {
+const checkRecipeLike = async ({ userId, recipeId }) => {
   const query = await db`SELECT * FROM recipe_likes WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
   return query
 }
@@ -306,20 +306,25 @@ const unsaveRecipe = async ({ userId, recipeId }) => {
   return query
 };
 
-const checkRecipeSaved = async ({userId, recipeId}) => {
+const checkRecipeSaved = async ({ userId, recipeId }) => {
   const query = await db`SELECT * FROM recipe_saved WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
   return query
 }
 
-const getSavedRecipesByUserId = async ({userId}) => {
-  // console.log(userId)
-  // const query = await db`
-  //   SELECT *
-  //   FROM recipe_saved
-  //   INNER JOIN recipes ON recipe_saved.id_recipe = recipes.id
-  //   WHERE recipe_saved.id_user = ${userId}
-  // `;
-  // return query;
+const getSavedRecipesByUserId = async ({ userId }) => {
+  const query = await db` SELECT recipes.* 
+    FROM recipe_saved 
+    JOIN recipes ON recipe_saved.id_recipe = recipes.id 
+    WHERE recipe_saved.id_user = ${userId}`;
+  return query;
+};
+
+const getLikedRecipesByUserId = async ({ userId }) => {
+  const query = await db` SELECT recipes.* 
+    FROM recipe_likes 
+    JOIN recipes ON recipe_likes.id_recipe = recipes.id 
+    WHERE recipe_likes.id_user = ${userId}`;
+  return query;
 };
 
 module.exports = {
@@ -349,4 +354,5 @@ module.exports = {
   unsaveRecipe,
   checkRecipeSaved,
   getSavedRecipesByUserId,
+  getLikedRecipesByUserId,
 }
