@@ -1,6 +1,7 @@
 const recipes = require('../models/recipe.model')
 const users = require('../models/user.model')
 const cloudinary = require('cloudinary').v2;
+const jwt = require("jsonwebtoken");
 const { storeRecipesInRedis } = require('../middlewares/redis.middleware')
 
 // Configuration 
@@ -92,7 +93,7 @@ const getRecipes = async (req, res) => {
         page
       })
     }
-    
+
     const totalData = dataAllRecipes?.length;
     // // Store data to redis
     // storeRecipesInRedis(dataAllRecipes, totalData);
@@ -105,11 +106,11 @@ const getRecipes = async (req, res) => {
         total: dataAllRecipes.length,
         page: !Number.isNaN(page)
           ? {
-              current: page,
-              total: dataAllRecipes?.[0].full_count
-                ? Math.ceil(parseInt(dataAllRecipes?.[0]?.full_count) / 10)
-                : 0
-            }
+            current: page,
+            total: dataAllRecipes?.[0].full_count
+              ? Math.ceil(parseInt(dataAllRecipes?.[0]?.full_count) / 10)
+              : 0
+          }
           : null,
         data: dataAllRecipes
       })
@@ -129,6 +130,17 @@ const getRecipes = async (req, res) => {
 const getRecipesBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
+    const token = req?.headers?.authorization?.slice(
+      7,
+      req?.headers?.authorization?.length
+    );
+
+    let userId = null;
+
+    if (token) {
+      const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
+      userId = decoded.id;
+    }
 
     const dataSelectedRecipe = await recipes.getRecipeBySlug({ slug });
 
@@ -142,17 +154,31 @@ const getRecipesBySlug = async (req, res) => {
     // Get comments for the recipe
     const recipeId = await dataSelectedRecipe[0].id;
     const comments = await recipes.getCommentsByRecipeID(recipeId);
+    const likeCount = await recipes.getLikeCount({ recipeId });
 
-    // Include comments in the response
-    const recipeWithComments = {
+    let isLiked = false;
+    let isSaved = false;
+
+    if (userId) {
+      const liked = await recipes.checkRecipeLike({ userId, recipeId })
+      const saved = await recipes.checkRecipeSaved({ userId, recipeId })
+
+      isLiked = liked.length ? true : false;
+      isSaved = saved.length ? true : false;
+    }
+
+    const recipeData = {
       ...dataSelectedRecipe[0],
-      comments: comments || [], 
+      comments: comments || [],
+      likeCount,
+      isLiked: isLiked,
+      isSaved: isSaved,
     };
 
     return res.status(200).json({
       status: true,
       message: 'Get data success',
-      data: recipeWithComments,
+      data: recipeData,
     });
   } catch (error) {
     return res.status(500).json({
@@ -161,7 +187,6 @@ const getRecipesBySlug = async (req, res) => {
     });
   }
 };
-
 
 
 // Get recipes by user id
@@ -260,7 +285,7 @@ const postRecipes = async (req, res) => {
     }
 
     // Upload file to cloudinary
-    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, {public_id: "recipePicture" + title, folder: "recipePicture"})
+    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, { public_id: "recipePicture" + title, folder: "recipePicture" })
 
     const createRecipe = await recipes.createRecipe({
       recipePicture: uploadResponse.secure_url,
@@ -426,7 +451,7 @@ const editPhotoRecipe = async (req, res) => {
       })
     }
     // Upload file to cloudinary
-    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, {public_id: "recipePicture" + id})
+    const uploadResponse = await cloudinary.uploader.upload(recipePicture.tempFilePath, { public_id: "recipePicture" + id })
 
     const updateRecipe = await recipes.updateRecipe({
       id,
@@ -470,7 +495,7 @@ const postComment = async (req, res) => {
     }
 
     // Post the comment
-    const newComment = await recipes.postComment({userId, recipeId, comment});
+    const newComment = await recipes.postComment({ userId, recipeId, comment });
 
     return res.status(200).json({
       status: true,
@@ -487,8 +512,8 @@ const postComment = async (req, res) => {
 
 const likeRecipe = async (req, res) => {
   try {
-    const { userId } = req.body; // Assuming you're sending userId in the request body
-    const { id: recipeId } = req.params;
+    const { userId, recipeId } = req.body;
+    // const { id: recipeId } = req.params;
 
     const recipe = await recipes.getRecipeByID({ id: recipeId });
     if (!recipe.length) {
@@ -528,8 +553,7 @@ const likeRecipe = async (req, res) => {
 
 const unlikeRecipe = async (req, res) => {
   try {
-    const { userId } = req.body; 
-    const { id: recipeId } = req.params;
+    const { userId, recipeId } = req.body;
 
     const recipe = await recipes.getRecipeByID({ id: recipeId });
     if (!recipe.length) {
@@ -569,11 +593,10 @@ const unlikeRecipe = async (req, res) => {
 
 const saveRecipe = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { userId } = req.user;
+    const { userId, recipeId } = req.body;
 
     // Check if the recipe exists
-    const recipe = await recipes.getRecipeByID({ id });
+    const recipe = await recipes.getRecipeByID({ id: recipeId });
     if (!recipe.length) {
       return res.status(404).json({
         status: false,
@@ -581,8 +604,16 @@ const saveRecipe = async (req, res) => {
       });
     }
 
-    // Save the recipe
-    await saveRecipe({ userId, recipeId: id });
+    const existingSave = await recipes.checkRecipeSaved({ userId, recipeId });
+    if (existingSave.length > 0) {
+      return res.status(400).json({
+        status: false,
+        message: 'You have already saved this recipe!',
+      });
+    }
+
+    // // Save the recipe
+    await recipes.saveRecipe({ userId, recipeId });
 
     return res.status(200).json({
       status: true,
@@ -596,17 +627,33 @@ const saveRecipe = async (req, res) => {
   }
 }
 
-const getSaved = async (req, res) => {
+const unsaveRecipe = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { userId, recipeId } = req.body;
 
-    // Get saved recipes for the user
-    const savedRecipes = await getSavedRecipesByUserId(userId);
+    const recipe = await recipes.getRecipeByID({ id: recipeId });
+    if (!recipe.length) {
+      return res.status(404).json({
+        status: false,
+        message: 'Recipe Not Found!',
+      });
+    }
+
+    const existingSave = await recipes.checkRecipeSaved({ userId, recipeId });
+    if (existingSave.length === 0) {
+      return res.status(400).json({
+        status: false,
+        message: "You haven't saved this recipe!",
+      });
+    }
+
+    // Unlike the recipe
+    await recipes.unsaveRecipe({ userId, recipeId });
+
 
     return res.status(200).json({
       status: true,
-      message: 'Saved recipes retrieved successfully!',
-      data: savedRecipes,
+      message: 'Recipe unsaved successfully!'
     });
   } catch (error) {
     return res.status(500).json({
@@ -614,7 +661,7 @@ const getSaved = async (req, res) => {
       message: error.message,
     });
   }
-}
+};
 
 module.exports = {
   getRecipes,
@@ -628,5 +675,5 @@ module.exports = {
   likeRecipe,
   unlikeRecipe,
   saveRecipe,
-  getSaved,
+  unsaveRecipe,
 }

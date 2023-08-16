@@ -16,7 +16,7 @@ const getAllRecipes = async (params) => {
 
 const getAllRecipesWithSort = async (params) => {
   const { sort } = params
-  
+
   if (sort === 'asc') {
     query = await db`SELECT * FROM recipes ORDER BY id ASC`
   } else {
@@ -48,9 +48,8 @@ const getAllRecipesWithPage = async (params) => {
   const { page } = params
 
   if (page && !Number.isNaN(page) && page > 0) {
-    query = await db`SELECT * FROM recipes ORDER BY id LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes ORDER BY id LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   }
 
   const data = await query
@@ -65,7 +64,7 @@ const getAllRecipesWithSortAndKeyword = async (params) => {
 
   if (sort === 'asc' && keyword) {
     query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC`
-  } else  {
+  } else {
     query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC`
   }
 
@@ -80,13 +79,11 @@ const getAllRecipesWithSortAndPage = async (params) => {
   const { sort, page } = params
 
   if (sort === 'asc' && page && !Number.isNaN(page) && page > 0) {
-    query = await db`SELECT * FROM recipes ORDER BY id ASC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes ORDER BY id ASC LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   } else {
-    query = await db`SELECT * FROM recipes ORDER BY id DESC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes ORDER BY id DESC LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   }
 
   const data = await query
@@ -101,9 +98,8 @@ const getAllRecipesWithKeywordAndPage = async (params) => {
   const { keyword, page } = params
 
   if (keyword && page && !Number.isNaN(page) && page > 0) {
-    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   }
 
   const data = await query
@@ -117,13 +113,11 @@ const getAllRecipesWithSortAndKeywordAndPage = async (params) => {
   const { sort, keyword, page } = params
 
   if (sort === 'asc' && keyword && page && !Number.isNaN(page) && page > 0) {
-    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id ASC LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   } else {
-    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC LIMIT ${10} OFFSET ${
-      10 * (page - 1)
-    }`
+    query = await db`SELECT * FROM recipes WHERE LOWER(title) LIKE LOWER(${`%${keyword}%`}) ORDER BY id DESC LIMIT ${10} OFFSET ${10 * (page - 1)
+      }`
   }
 
   const data = await query
@@ -267,49 +261,65 @@ const postComment = async (params) => {
   return query;
 }
 
-const likeRecipe = async ({ userId, recipeId }) => {
-  try {
-    const query = 'INSERT INTO likes (id_user, id_recipe) VALUES (?, ?)';
-    const result = await db.query(query, [userId, recipeId]);
-    return result;
-  } catch (error) {
-    throw error;
+const likeRecipe = async (params) => {
+  const { userId, recipeId } = params
+
+  const payload = {
+    id_user: userId,
+    id_recipe: recipeId
   }
+
+  const query = await db`INSERT INTO recipe_likes ${db(payload, 'id_user', 'id_recipe')} returning *`
+  return query;
 };
 
 const unlikeRecipe = async ({ userId, recipeId }) => {
-  try {
-    const query = 'DELETE FROM likes WHERE id_user = ? AND id_recipe = ?';
-    const result = await db.query(query, [userId, recipeId]);
-    return result;
-  } catch (error) {
-    throw error;
-  }
+  const query = await db`DELETE FROM recipe_likes WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
+  return query
 };
 
 const getLikeCount = async ({ recipeId }) => {
-  try {
-    const query = 'SELECT COUNT(*) AS likeCount FROM likes WHERE id_recipe = ?';
-    const result = await db.query(query, [recipeId]);
-    return result[0].likeCount;
-  } catch (error) {
-    throw error;
+  const query = await db`SELECT COUNT(*) AS likeCount FROM recipe_likes WHERE id_recipe = ${recipeId}`;
+  return query
+};
+
+const checkRecipeLike = async ({userId, recipeId}) => {
+  const query = await db`SELECT * FROM recipe_likes WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
+  return query
+}
+
+const saveRecipe = async (params) => {
+  const { userId, recipeId } = params
+
+  const payload = {
+    id_user: userId,
+    id_recipe: recipeId
   }
-};
 
-const saveRecipe = async ({ userId, recipeId }) => {
-  const query = await db`INSERT INTO saved_recipes (id_user, id_recipe) VALUES (${userId}, ${recipeId})`;
+  const query = await db`INSERT INTO recipe_saved ${db(payload, 'id_user', 'id_recipe')} returning *`
+
   return query;
 };
 
-const getSavedRecipesByUserId = async (userId) => {
-  const query = await db`
-    SELECT recipes.*
-    FROM saved_recipes
-    INNER JOIN recipes ON saved_recipes.id_recipe = recipes.id
-    WHERE saved_recipes.id_user = ${userId}
-  `;
-  return query;
+const unsaveRecipe = async ({ userId, recipeId }) => {
+  const query = await db`DELETE FROM recipe_saved WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
+  return query
+};
+
+const checkRecipeSaved = async ({userId, recipeId}) => {
+  const query = await db`SELECT * FROM recipe_saved WHERE id_user = ${userId} AND id_recipe = ${recipeId}`;
+  return query
+}
+
+const getSavedRecipesByUserId = async ({userId}) => {
+  // console.log(userId)
+  // const query = await db`
+  //   SELECT *
+  //   FROM recipe_saved
+  //   INNER JOIN recipes ON recipe_saved.id_recipe = recipes.id
+  //   WHERE recipe_saved.id_user = ${userId}
+  // `;
+  // return query;
 };
 
 module.exports = {
@@ -333,7 +343,10 @@ module.exports = {
   postComment,
   likeRecipe,
   unlikeRecipe,
+  checkRecipeLike,
   getLikeCount,
   saveRecipe,
+  unsaveRecipe,
+  checkRecipeSaved,
   getSavedRecipesByUserId,
 }
